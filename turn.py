@@ -1,6 +1,5 @@
-import brickpi
 import time
-from config import *
+from config import interface, motors
 
 
 def turn(degrees):

@@ -1,17 +1,18 @@
 import brickpi
 
-SensorPort = 3
+SensorPort = 1
 interface = brickpi.Interface()
 interface.initialize()
 interface.sensorEnable(SensorPort, brickpi.SensorType.SENSOR_ULTRASONIC)
 
-touchPort = 1
-interface.sensorEnable(touchPort, brickpi.SensorType.SENSOR_TOUCH)
+touchPort = [2, 3]
+interface.sensorEnable(touchPort[0], brickpi.SensorType.SENSOR_TOUCH)
+interface.sensorEnable(touchPort[1], brickpi.SensorType.SENSOR_TOUCH)
 
 motors = [0, 1, 2]
 
-#interface.motorEnable(motors[0])
-#interface.motorEnable(motors[1])
+interface.motorEnable(motors[0])
+interface.motorEnable(motors[1])
 interface.motorEnable(motors[2])
 
 motorParams = interface.MotorAngleControllerParameters()
@@ -25,8 +26,8 @@ motorParams.pidParameters.k_p = 500.0
 motorParams.pidParameters.k_i = 300.0
 motorParams.pidParameters.k_d = 15.0
 
-#interface.setMotorAngleControllerParameters(motors[0], motorParams)
-#interface.setMotorAngleControllerParameters(motors[1], motorParams)
+interface.setMotorAngleControllerParameters(motors[0], motorParams)
+interface.setMotorAngleControllerParameters(motors[1], motorParams)
 interface.setMotorAngleControllerParameters(motors[2], motorParams)
 
 numberOfParticles = 100
@@ -47,3 +48,6 @@ mean_theta_g = 0.0
 sd_theta_g = 0.2
 
 sonarToCenter = 5
+
+numberOfScans = 72
+angleToRotateScans = 5.0

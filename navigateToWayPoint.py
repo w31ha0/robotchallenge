@@ -1,15 +1,15 @@
 import math
 from likelihood import *
-from sonic import *
+import sonic
 from normal import *
-from turn import *
-from gostraight import *
-from particleUpdate import *
-from config import *
+import turn
+import gostraight
+from particleUpdate import updateRotation, update
+from config import interface, numberOfParticles
 
 
 def mcl(oldParticles):
-    z = getSonar() + 2
+    z = sonic.getSonar() + 2
     if (z == -1):
         print "Skipping MCL as sonar distance is unreliable"
         return tuple(oldParticles)
@@ -42,19 +42,19 @@ def navigateToWayPoint(wx, wy, currentPosition, particles):
     print "angle to turn is " + str(angle)
 
     if abs(math.degrees(angle) - 90) < 8:
-        turn(90)
+        turn.turn(90)
         particles = [updateRotation(particles[i], 90) for i in range(numberOfParticles)]
     elif abs(math.degrees(angle) + 90) < 8:
-        turn(-90)
+        turn.turn(-90)
         particles = [updateRotation(particles[i], -90) for i in range(numberOfParticles)]
     else:
-        turn(math.degrees(angle))
+        turn.turn(math.degrees(angle))
         particles = [updateRotation(particles[i], math.degrees(angle)) for i in range(numberOfParticles)]
 
     Angle_before = interface.getMotorAngle(0)[0]
 
-    gostraight = go()
-    gostraight.run(distance)
+    _gostraight = gostraight.go()
+    _gostraight.run(distance)
     Angle_after = interface.getMotorAngle(0)[0]
     d = (Angle_after - Angle_before) / (-math.pi * 0.124)
     print 'd:', d

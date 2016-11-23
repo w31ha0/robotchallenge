@@ -5,11 +5,12 @@
 import sonic
 import os
 import math
-from config import sonarToCenter
+from config import sonarToCenter, numberOfScans, angleToRotateScans
+
 
 # Location signature class: stores a signature characterizing one location
 class LocationSignature:
-    def __init__(self, no_bins=360):
+    def __init__(self, no_bins=numberOfScans):
         self.sig = [0] * no_bins
 
     def print_signature(self):
@@ -84,7 +85,7 @@ class SignatureContainer():
 # FILL IN: spin robot or sonar to capture a signature and store it in ls
 def characterize_location(ls):
     _dir = 1
-    #TODO:    You should implement the function that captures a signature.
+    # TODO:    You should implement the function that captures a signature.
 
     fs = open("directionCheck", 'r+')
     x = fs.read()
@@ -100,14 +101,14 @@ def characterize_location(ls):
 
     for i in range(len(ls.sig)):
         ls.sig[i] = sonic.getSonar() + sonarToCenter
-        sonic.rotateSonar(dir * 1.0 / 180 * math.pi)
+        sonic.rotateSonar(_dir * angleToRotateScans / 180 * math.pi)
         # print ls.sig[i]
 
 
 # FILL IN: compare two signatures
 def compare_signatures(ls1, ls2):
     dist = 0
-    #TODO:    You should implement the function that compares two signatures
+    # TODO:    You should implement the function that compares two signatures
     for i in range(len(ls1.sig)):
         diff = abs(ls1.sig[i] - ls2.sig[i])
         dist += diff
@@ -155,8 +156,26 @@ def recognize_location(signatures):
     if dist < prevDist:
         currentBestMatch = ls_read
         matchedIndex = idx
-    print "Found match " + str(idx)
+    print "Found match " + str(matchedIndex)
     return currentBestMatch
+
+
+def findAnomaly(ls1, ls2):
+    threshold = 10
+    differingIndices = []
+    for i in range(len(ls1.sig)):
+        difference = abs(ls1.sig[i] - ls2.sig[i])
+        if difference > threshold:
+            differingIndices.append(i)
+    median = int(len(differingIndices))
+    return median
+
+
+def getLocationOfObject(currentPosition, distance):
+    currentOrientation = math.radians(currentPosition[2])
+    dx = distance * math.cos(currentOrientation)
+    dy = distance * math.sin(currentOrientation)
+    return currentPosition[0] + dx, currentPosition[1] + dy
 
 
 def compare_signaturesForFrequencyHistogram(ls1, ls2):
