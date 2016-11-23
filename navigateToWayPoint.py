@@ -5,7 +5,7 @@ from normal import *
 import turn
 import gostraight
 from particleUpdate import updateRotation, update
-from config import interface, numberOfParticles
+from config import *
 
 
 def mcl(oldParticles):

@@ -7,9 +7,11 @@ class go(object):
         self.start = 1
 
     def run(self, length):
-        angle = -(length * 0.124) * 3.14159
-        orgAngle = interface.getMotorAngles(motors)[0][0]
-        interface.increaseMotorAngleReferences(motors, [angle, angle])
-        while not interface.motorAngleReferencesReached(motors):
-            motorAngles = interface.getMotorAngles(motors)
+        angle = (length * 0.124) * 3.14159
+        interface.increaseMotorAngleReferences(motors[0:2], [angle, angle])
+        while not interface.motorAngleReferencesReached(motors[0:2]):
             time.sleep(0.1)
+            
+#testing
+#gos = go()
+#gos.run(10)

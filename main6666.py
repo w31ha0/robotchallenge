@@ -27,16 +27,16 @@ signatures = prb.SignatureContainer()
 bumperThread = threading.Thread(name='bumper', target=bumper.getTouch)
 
 for waypoint in waypoints:
-    nwp.navigateToWayPoint(waypoint, particles, pu.getCurrentPosition(particles), particles)
+    nwp.navigateToWayPoint(waypoint[0], waypoint[1], pu.getCurrentPosition(particles), particles)
     ls = prb.LocationSignature()
     prb.characterize_location(ls)
     match = prb.recognize_location(signatures)
     angle = prb.findAnomaly(ls, match)
     waypointofobject = getLocationOfObject(pu.getCurrentPosition(particles), angle)
-    nwp.navigateToWayPoint(waypointofobject, particles, pu.getCurrentPosition(particles), particles)
+    nwp.navigateToWayPoint(waypointofobject[0], waypointofobject[1], pu.getCurrentPosition(particles), particles)
     #when hit a bump, break
     
-nwp.navigateToWayPoint(waypoint1, particles, pu.getCurrentPosition(particles), particles)
+nwp.navigateToWayPoint(waypoint1[0], waypoint1[1], pu.getCurrentPosition(particles), particles)
 
 # at each waypoint do a scan
 # go to new location with detected object

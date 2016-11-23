@@ -1,6 +1,6 @@
 import brickpi
 
-SensorPort = 1
+SensorPort = 0
 interface = brickpi.Interface()
 interface.initialize()
 interface.sensorEnable(SensorPort, brickpi.SensorType.SENSOR_ULTRASONIC)

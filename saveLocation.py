@@ -16,6 +16,6 @@ signatures.delete_loc_files()
 particles = [initialPosition for i in range(numberOfParticles)]
 
 for waypoint in waypoints:
-        nwp.navigateToWayPoint(waypoint, particles, pu.getCurrentPosition(particles), particles)
+        nwp.navigateToWayPoint(waypoint[0],waypoint[1] , pu.getCurrentPosition(particles), particles)
         turn(-pu.getCurrentPosition(particles)[2])
         learn_location(signatures)
