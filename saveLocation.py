@@ -5,7 +5,7 @@ from config import *
 import navigateToWayPoint as nwp
 
 waypoint1 = (84,30)
-waypointa = (105,42)
+waypointa = (157.5,30)
 waypointb = (126,147)
 waypointc = (42,112)
 

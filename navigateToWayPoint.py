@@ -1,6 +1,6 @@
 import math
 from likelihood import *
-import sonic
+import sonic 
 from normal import *
 import turn
 import gostraight
@@ -9,7 +9,8 @@ from config import *
 
 
 def mcl(oldParticles):
-    z = sonic.getSonar() + 2
+    sn = sonic.Sonic()
+    z = sn.getSonar() + 2
     if (z == -1):
         print "Skipping MCL as sonar distance is unreliable"
         return tuple(oldParticles)

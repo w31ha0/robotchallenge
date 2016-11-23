@@ -10,7 +10,7 @@ from config import sonarToCenter, numberOfScans, angleToRotateScans
 
 # Location signature class: stores a signature characterizing one location
 class LocationSignature:
-    def __init__(self, no_bins=numberOfScans):
+    def __init__(self, no_bins=360):
         self.sig = [0] * no_bins
 
     def print_signature(self):
@@ -84,6 +84,7 @@ class SignatureContainer():
 
 # FILL IN: spin robot or sonar to capture a signature and store it in ls
 def characterize_location(ls):
+    sn = sonic.Sonic()
     _dir = 1
     # TODO:    You should implement the function that captures a signature.
 
@@ -99,7 +100,10 @@ def characterize_location(ls):
         fw.write("1")
     fw.close()
 
-    ls.sig = sonic.rotateSonar(_dir * math.pi*2)[:numberOfScans]
+    for i in range(len(ls.sig)):
+        sn.rotateSonar((_dir * math.pi*2)/360)
+        ls.sig[i] = sn.getSonar()
+        print "sonar is " + str(ls.sig[i])
 
 
 # FILL IN: compare two signatures
