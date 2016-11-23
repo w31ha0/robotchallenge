@@ -101,7 +101,7 @@ def characterize_location(ls):
 
     for i in range(len(ls.sig)):
         ls.sig[i] = sonic.getSonar() + sonarToCenter
-        sonic.rotateSonar(_dir * math.pi*2)
+        sonic.rotateSonar(_dir * angleToRotateScans / 180 * math.pi)
         # print ls.sig[i]
 
 

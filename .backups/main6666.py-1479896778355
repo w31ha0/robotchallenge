@@ -1,0 +1,37 @@
+import brickpi
+import math
+import particleDataStructure as pds
+from config import *
+import particleUpdate as pu
+from navigateToWayPoint import *
+import place_rec_bits.py
+
+waypoint1 = (84, 30)
+waypointa = (105, 42)
+waypointb = (126, 147)
+waypointc = (42, 112)
+
+
+waypoints = [waypointa, waypointb, waypointc]
+
+canvas = pds.Canvas()
+mymap = pds.Map()
+pds.drawWall(mymap, canvas)
+
+particles = [initialPosition for i in range(numberOfParticles)]
+canvas.drawParticles(particles)
+signatures = SignatureContainer()
+
+for waypoint in waypoints:
+    navigateToWayPoint(waypoint, particles, pu.getCurrentPosition(particles), particles)
+    ls = LocationSignature()
+    characterize_location(ls)
+    match = recognize_location(signatures)
+    angle = findAnomaly(ls, match)
+    waypointofobject = getLocationOfObject(currentposition, angle)
+# at each waypoint do a scan
+# go to new location with detected object 
+# bump
+# go to next waypoint
+# repeat till last object is bumped
+# go back to waypoint 1

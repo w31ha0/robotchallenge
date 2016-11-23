@@ -9,7 +9,7 @@ class Sonic:
     def __init__(self):
         print "Instantiated sonic class"
         self._stop = threading.Event()
-        self.runningThread = True
+
 
     def getSonar(self):
         usReading = interface.getSensorValue(SensorPort)[0]
@@ -17,12 +17,12 @@ class Sonic:
 
     def rotateSonar(self, angleRad):
         prevAngle = interface.getMotorAngle(motors[2])[0]
-        interface.increaseMotorAngleReference(motors[2], angleRad, 1)
-        t = threading.Thread(name='angleCheck', target=self.angleCheck(prevAngle))
+        interface.increaseMotorAngleReference(motors[2], angleRad, 1.5)
+        t = threading.Thread(name='angleCheck', target=self.angleCheck)
         t.start()
         while not interface.motorAngleReferenceReached(motors[2]):
-            time.sleep(0.01)
-        self.runningThread = False
+            time.sleep(0.001)
+        self.stop()
         return self.sonicArr
     
     def stop(self):
@@ -32,19 +32,17 @@ class Sonic:
         return self._stop.isSet()
 
     
-    def angleCheck(self, prevAngle):
-        while self.runningThread:
+    def angleCheck(self):
+        while True:
             angle = interface.getMotorAngle(motors[2])[0]
             if math.degrees(abs(angle - prevAngle)) >= 5:
                 print (angle - prevAngle) / math.pi * 180
                 prevAngle = angle
                 self.sonicArr.append(self.getSonar())
-        print 'Thread Stopped'
-        return 0
 
-if __name__ == "__main__":
-    sonicObj = Sonic()
 
-    sonicArrr = sonicObj.rotateSonar(-1 * math.pi)
+sonicObj = Sonic()
 
-    print sonicArrr
+sonicArrr = sonicObj.rotateSonar(-2 * math.pi)
+
+print sonicArrr

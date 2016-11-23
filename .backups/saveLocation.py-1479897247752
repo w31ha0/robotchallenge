@@ -1,0 +1,11 @@
+from place_rec_bits import *
+
+waypoint1 = (84,30)
+waypointa = (105,42)
+waypointb = (126,147)
+waypointc = (42,112)
+
+
+signatures = SignatureContainer(5)
+
+learn_location(signatures)

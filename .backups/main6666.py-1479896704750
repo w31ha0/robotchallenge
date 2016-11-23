@@ -1,0 +1,26 @@
+import brickpi
+import math
+import particleDataStructure as pds
+from config import *
+import particleUpdate as pu
+from navigateToWayPoint import *
+
+waypoint1 = (84, 30)
+waypointa = (105, 42)
+waypointb = (126, 147)
+waypointc = (42, 112)
+
+
+waypoints = [waypointa, waypointb, waypointc]
+
+canvas = pds.Canvas()
+mymap = pds.Map()
+pds.drawWall(mymap, canvas)
+
+particles = [initialPosition for i in range(numberOfParticles)]
+canvas.drawParticles(particles)
+
+for waypoint in waypoints:
+    navigateToWayPoint(waypoint, particles, pu.getCurrentPosition(particles), particles)
+
+#
