@@ -1,9 +1,0 @@
-from config import interface, touchPort
-
-
-def getTouch():
-    result = [interface.getSensorValue(touchPort[0]), interface.getSensorValue(touchPort[1])]
-    if result[0] or result[1]:
-        return True
-    else:
-        return False
