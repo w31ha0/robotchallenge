@@ -3,10 +3,11 @@ import time
 
 
 class Bumper:
-    touched = False
+    
 
     def __init__(self):
         print "Instantiated bumper class"
+        self.touched = False
 
     def getTouch(self):
         while True:

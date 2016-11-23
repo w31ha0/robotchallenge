@@ -6,7 +6,7 @@ import navigateToWayPoint as nwp
 
 waypoint1 = (84,30)
 waypointa = (157.5,30)
-waypointb = (126,147)
+waypointb = (126,120)
 waypointc = (42,112)
 
 waypoints = [waypointa,waypointb,waypointc]
@@ -16,6 +16,6 @@ signatures.delete_loc_files()
 particles = [initialPosition for i in range(numberOfParticles)]
 
 for waypoint in waypoints:
-        nwp.navigateToWayPoint(waypoint[0],waypoint[1] , pu.getCurrentPosition(particles), particles)
+        particles = nwp.navigateToWayPoint(waypoint[0],waypoint[1] , pu.getCurrentPosition(particles), particles)
         turn(-pu.getCurrentPosition(particles)[2])
         learn_location(signatures)

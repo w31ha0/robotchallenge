@@ -8,7 +8,7 @@ class go(object):
 
     def run(self, length):
         angle = (length * 0.124) * 3.14159
-        interface.increaseMotorAngleReferences(motors[0:2], [angle, angle])
+        interface.increaseMotorAngleReferences(motors[0:2], [angle, angle], [8,8])
         while not interface.motorAngleReferencesReached(motors[0:2]):
             time.sleep(0.1)
             

@@ -25,7 +25,7 @@ class Sonic:
                 prevAngle = angle
                 self.sonicArr.append(self.getSonar())
             time.sleep(0.01)
-        print len(self.sonicArr)
+        #print len(self.sonicArr)
         return self.sonicArr
 
 

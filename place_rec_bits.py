@@ -103,7 +103,6 @@ def characterize_location(ls):
     for i in range(len(ls.sig)):
         sn.rotateSonar((_dir * math.pi*2)/360)
         ls.sig[i] = sn.getSonar()
-        print "sonar is " + str(ls.sig[i])
 
 
 # FILL IN: compare two signatures

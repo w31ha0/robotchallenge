@@ -58,11 +58,13 @@ def navigateToWayPoint(wx, wy, currentPosition, particles):
     _gostraight.run(distance)
     Angle_after = interface.getMotorAngle(0)[0]
     d = (Angle_after - Angle_before) / (-math.pi * 0.124)
+    d = abs(d)
     print 'd:', d
     particles = [update(particles[i], d) for i in range(numberOfParticles)]
-
+    print "Particles are now " + str(particles)
     # update particles
-    particles = mcl(particles)
+    #particles = mcl(particles)
+    #print "Current Position is " + str(currentPosition)
 
     return particles
 
