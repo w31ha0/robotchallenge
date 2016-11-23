@@ -99,10 +99,7 @@ def characterize_location(ls):
         fw.write("1")
     fw.close()
 
-    for i in range(len(ls.sig)):
-        ls.sig[i] = sonic.getSonar() + sonarToCenter
-        sonic.rotateSonar(_dir * math.pi*2)
-        # print ls.sig[i]
+    ls.sig = sonic.rotateSonar(_dir * math.pi*2)[:numberOfScans]
 
 
 # FILL IN: compare two signatures

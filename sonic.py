@@ -17,11 +17,13 @@ class Sonic:
 
     def rotateSonar(self, angleRad):
         prevAngle = interface.getMotorAngle(motors[2])[0]
-        interface.increaseMotorAngleReference(motors[2], angleRad, 1)
+        interface.increaseMotorAngleReference(motors[2], angleRad, 1.5)
         t = threading.Thread(name='angleCheck', target=self.angleCheck(prevAngle))
         t.start()
         while not interface.motorAngleReferenceReached(motors[2]):
             time.sleep(0.01)
+            
+        print self.runningThread
         self.runningThread = False
         return self.sonicArr
     
@@ -35,7 +37,7 @@ class Sonic:
     def angleCheck(self, prevAngle):
         while self.runningThread:
             angle = interface.getMotorAngle(motors[2])[0]
-            if math.degrees(abs(angle - prevAngle)) >= 5:
+            if math.degrees(abs(angle - prevAngle)) >= 4.5:
                 print (angle - prevAngle) / math.pi * 180
                 prevAngle = angle
                 self.sonicArr.append(self.getSonar())
