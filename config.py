@@ -1,10 +1,12 @@
 import brickpi
-import time
 
 SensorPort = 3
 interface = brickpi.Interface()
 interface.initialize()
 interface.sensorEnable(SensorPort, brickpi.SensorType.SENSOR_ULTRASONIC)
+
+touchPort = 1
+interface.sensorEnable(touchPort, brickpi.SensorType.SENSOR_TOUCH)
 
 motors = [0, 1, 2]
 
