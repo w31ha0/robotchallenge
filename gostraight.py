@@ -20,7 +20,7 @@ class go(object):
         # Either it reached the destination or it hit something, it will stop
         while not interface.motorAngleReferencesReached(motors[0:2]) and not self.touchDetected:  
             result = [interface.getSensorValue(touchPort[0])[0], interface.getSensorValue(touchPort[1])[0]]
-            print result
+            #print result
             if sum(result)>0:
                 print sum(result)
                 self.touchDetected = True
@@ -59,5 +59,5 @@ class go(object):
 
             
 #testing
-go1 = go()
-print go1.run(60)
+#go1 = go()
+#print go1.run(60)

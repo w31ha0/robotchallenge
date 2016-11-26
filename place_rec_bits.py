@@ -89,17 +89,16 @@ def characterize_location(ls, _dir):
     # TODO:    You should implement the function that captures a signature.
     _dir *= -1
     #print "charactersing"
-    for i in range(len(ls.sig)):
-        #print "inside liao"
-        sn.rotateSonar((_dir * math.pi * 2) / 360,_dir)
-        ls.sig[i] = sn.getSonar()
-    return -1
+    readings,_dir = sn.rotateSonar(math.pi*2,_dir)
+    ls.sig[0:len(readings)] = readings
+    print ls.sig
+    return _dir
 
 def characterize_location_for_real(ls, _dir):
     sn = sonic.Sonic()
     # TODO:    You should implement the function that captures a signature.
-    _dir *= -1
     readings,_dir = sn.rotateSonar(math.pi*2,_dir)
+    _dir *= -1
     return _dir,readings
 
 
@@ -124,7 +123,7 @@ def learn_location(signatures, _dir):
         print "\nWARNING:"
         print "No signature file is available. NOTHING NEW will be learned and stored."
         print "Please remove some loc_%%.dat files.\n"
-        return _dir
+        return _dir,readings
 
     signatures.save(ls, idx)
     print "STATUS:  Location " + str(idx) + " learned and saved."
