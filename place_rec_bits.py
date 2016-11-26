@@ -5,7 +5,8 @@
 import sonic
 import os
 import math
-from config import sonarToCenter, numberOfScans, angleToRotateScans
+# from config import sonarToCenter, numberOfScans, angleToRotateScans,interface,
+from config import *
 
 
 # Location signature class: stores a signature characterizing one location
@@ -83,26 +84,14 @@ class SignatureContainer():
 
 
 # FILL IN: spin robot or sonar to capture a signature and store it in ls
-def characterize_location(ls):
+def characterize_location(ls, _dir):
     sn = sonic.Sonic()
-    _dir = 1
     # TODO:    You should implement the function that captures a signature.
-
-    fs = open("directionCheck", 'r+')
-    x = fs.read()
-    fs.close()
-    fw = open("directionCheck", 'w+')
-    if x == "1":
-        _dir = 1
-        fw.write("-1")
-    elif x == "-1":
-        _dir = -1
-        fw.write("1")
-    fw.close()
-
+    _dir *= -1
     for i in range(len(ls.sig)):
-        sn.rotateSonar((_dir * math.pi*2)/360)
+        sn.rotateSonar((_dir * math.pi * 2) / 360)
         ls.sig[i] = sn.getSonar()
+    return -1
 
 
 # FILL IN: compare two signatures
@@ -118,18 +107,19 @@ def compare_signatures(ls1, ls2):
 
 # This function characterizes the current location, and stores the obtained
 # signature into the next available file.
-def learn_location(signatures):
+def learn_location(signatures, _dir):
     ls = LocationSignature()
-    characterize_location(ls)
+    _dir = characterize_location(ls, _dir)
     idx = signatures.get_free_index()
     if idx == -1:  # run out of signature files
         print "\nWARNING:"
         print "No signature file is available. NOTHING NEW will be learned and stored."
         print "Please remove some loc_%%.dat files.\n"
-        return
+        return _dir
 
     signatures.save(ls, idx)
     print "STATUS:  Location " + str(idx) + " learned and saved."
+    return _dir
 
 
 # This function tries to recognize the current location.
@@ -140,9 +130,9 @@ def learn_location(signatures):
 # 3.   Retain the learned location whose minimum distance with
 #      actual characterization is the smallest.
 # 4.   Display the index of the recognized location on the screen
-def recognize_location(signatures):
+def recognize_location(signatures, _dir):
     ls_obs = LocationSignature()
-    characterize_location(ls_obs)
+    _dir = characterize_location(ls_obs, _dir)
     currentBestMatch = LocationSignature()
     matchedIndex = 0
 
@@ -152,12 +142,12 @@ def recognize_location(signatures):
         print "STATUS:  Comparing signature " + str(idx) + " with the observed signature."
         ls_read = signatures.read(idx)
 
-        dist = compare_signaturesForFrequencyHistogram(ls_obs, ls_read)
+        dist = compare_signatures(ls_obs, ls_read)
     if dist < prevDist:
         currentBestMatch = ls_read
         matchedIndex = idx
-    print "Found match " + str(matchedIndex)
-    return currentBestMatch
+    print "Found matched index " + str(matchedIndex) + " for file " + str(signatures.filenames[matchedIndex])
+    return currentBestMatch, _dir
 
 
 def findAnomaly(ls1, ls2):

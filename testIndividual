@@ -1,0 +1,11 @@
+from place_rec_bits import *
+from turn import *
+import particleUpdate as pu
+from config import *
+#import navigateToWayPoint as nwp
+
+print test1
+
+signatures = SignatureContainer(5)
+
+recognize_location(signatures)

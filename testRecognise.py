@@ -12,7 +12,6 @@ waypointc = (42,80)
 waypoints = [waypointa,waypointb,waypointc]
 
 signatures = SignatureContainer(5)
-signatures.delete_loc_files()
 particles = [initialPosition for i in range(numberOfParticles)]
 
 for waypoint in waypoints:
@@ -20,4 +19,4 @@ for waypoint in waypoints:
         angleAlign = -pu.getCurrentPosition(particles)[2]
         turn(angleAlign)
         particles = [pu.updateRotation(particles[i], angleAlign) for i in range(numberOfParticles)]
-        learn_location(signatures)
+        recognize_location(signatures)

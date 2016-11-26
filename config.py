@@ -6,6 +6,10 @@ interface.initialize()
 interface.sensorEnable(SensorPort, brickpi.SensorType.SENSOR_ULTRASONIC)
 
 touchPort = [2, 3]
+
+touchDetected = 0
+test1 = 12
+
 interface.sensorEnable(touchPort[0], brickpi.SensorType.SENSOR_TOUCH)
 interface.sensorEnable(touchPort[1], brickpi.SensorType.SENSOR_TOUCH)
 

@@ -1,17 +1,17 @@
+from config import *
 import math
 from likelihood import *
-import sonic 
+import sonic
 from normal import *
 import turn
 import gostraight
 from particleUpdate import updateRotation, update
-from config import *
 
 
 def mcl(oldParticles):
     sn = sonic.Sonic()
     z = sn.getSonar() + 2
-    if (z == -1):
+    if z == -1:
         print "Skipping MCL as sonar distance is unreliable"
         return tuple(oldParticles)
     newParticles = []
@@ -35,8 +35,9 @@ def navigateToWayPoint(wx, wy, currentPosition, particles):
     print "navigating to " + str(wx) + "," + str(wy) + " from " + str(currentPosition)
     print "distance is " + str(distance)
     angle = (math.atan2(wy - cy, wx - cx)) - ctheta  # math.atan2 returns in radians
-    if (abs(angle) >= (math.pi)):
-        if (angle > 0):
+    print "angle before is " + str(angle)
+    if abs(angle) >= math.pi:
+        if angle > 0:
             angle = -((math.pi * 2) - angle)
         else:
             angle = -((-math.pi * 2) - angle)
@@ -63,10 +64,11 @@ def navigateToWayPoint(wx, wy, currentPosition, particles):
     particles = [update(particles[i], d) for i in range(numberOfParticles)]
     print "Particles are now " + str(particles)
     # update particles
-    #particles = mcl(particles)
-    #print "Current Position is " + str(currentPosition)
+    # particles = mcl(particles)
+    # print "Current Position is " + str(currentPosition)
 
     return particles
+
 
 def turnToWayPoint(wx, wy, currentPosition, particles):
     cx = currentPosition[0]
@@ -77,8 +79,8 @@ def turnToWayPoint(wx, wy, currentPosition, particles):
     print "navigating to " + str(wx) + "," + str(wy) + " from " + str(currentPosition)
     print "distance is " + str(distance)
     angle = (math.atan2(wy - cy, wx - cx)) - ctheta  # math.atan2 returns in radians
-    if (abs(angle) >= (math.pi)):
-        if (angle > 0):
+    if abs(angle) >= math.pi:
+        if angle > 0:
             angle = -((math.pi * 2) - angle)
         else:
             angle = -((-math.pi * 2) - angle)
@@ -94,14 +96,14 @@ def turnToWayPoint(wx, wy, currentPosition, particles):
         turn.turn(math.degrees(angle))
         particles = [updateRotation(particles[i], math.degrees(angle)) for i in range(numberOfParticles)]
 
-    #Angle_before = interface.getMotorAngle(0)[0]
+    # Angle_before = interface.getMotorAngle(0)[0]
 
-    #_gostraight = gostraight.go()
-    #_gostraight.run(distance)
-    #Angle_after = interface.getMotorAngle(0)[0]
-    #d = (Angle_after - Angle_before) / (-math.pi * 0.124)
-    #print 'd:', d
-    #particles = [update(particles[i], d) for i in range(numberOfParticles)]
+    # _gostraight = gostraight.go()
+    # _gostraight.run(distance)
+    # Angle_after = interface.getMotorAngle(0)[0]
+    # d = (Angle_after - Angle_before) / (-math.pi * 0.124)
+    # print 'd:', d
+    # particles = [update(particles[i], d) for i in range(numberOfParticles)]
 
     # update particles
     particles = mcl(particles)
