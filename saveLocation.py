@@ -15,9 +15,10 @@ signatures = SignatureContainer(5)
 signatures.delete_loc_files()
 particles = [initialPosition for i in range(numberOfParticles)]
 
+_dir = 1
 for waypoint in waypoints:
         particles = nwp.navigateToWayPoint(waypoint[0],waypoint[1] , pu.getCurrentPosition(particles), particles)
         angleAlign = -pu.getCurrentPosition(particles)[2]
         turn(angleAlign)
         particles = [pu.updateRotation(particles[i], angleAlign) for i in range(numberOfParticles)]
-        learn_location(signatures)
+        _dir = learn_location(signatures,_dir)

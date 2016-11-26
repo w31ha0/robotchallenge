@@ -24,31 +24,30 @@ particles = [initialPosition for i in range(numberOfParticles)]
 canvas.drawParticles(particles)
 signatures = prb.SignatureContainer()
 
-bumper = bumper.Bumper()
-bumperThread = threading.Thread(name='bumper', target=bumper.getTouch)
-bumperThread.start()
+#bumper = bumper.Bumper()
+#bumperThread = threading.Thread(name='bumper', target=bumper.getTouch)
+#bumperThread.start()
 
 _dir = 1
 
 for index, waypoint in enumerate(waypoints):
-    while not bumper.touched:
-        particles = nwp.navigateToWayPoint(waypoint[0], waypoint[1], pu.getCurrentPosition(particles), particles)
+    particles = nwp.navigateToWayPoint(waypoint[0], waypoint[1], pu.getCurrentPosition(particles), particles)
     # include bumped here, then subsequent action
     current_particles = pu.getCurrentPosition(particles)
     ls = prb.LocationSignature()
-    _dir = prb.characterize_location(ls, _dir)
+    _dir,readings = prb.characterize_location_for_real(ls, _dir)
+    print "Scanned " + str(readings)
     #match, _dir = prb.recognize_location(signatures, _dir)
     match = signatures.read(index)
-    angle = prb.findAnomaly(ls, match)  # anomaly in absolute angle (degrees)
+    angle = prb.findAnomaly(readings, match)  # anomaly in absolute angle (degrees)
     toturn = angle - current_particles[2]
     turn.turn(math.degrees(toturn))
     particles = [pu.updateRotation(particles[i], math.degrees(toturn)) for i in range(numberOfParticles)]
 
     ob = gostraight.go()
     dist = 0
-    while not bumper.touched:
-        ob.run(1)
-        dist += 1
+    ob.run(1)
+    dist += 1
     ob.run(-dist)
 
     nwp.navigateToWayPoint(waypoint1[0], waypoint1[1], pu.getCurrentPosition(particles), particles)

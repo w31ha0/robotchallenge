@@ -88,10 +88,19 @@ def characterize_location(ls, _dir):
     sn = sonic.Sonic()
     # TODO:    You should implement the function that captures a signature.
     _dir *= -1
+    #print "charactersing"
     for i in range(len(ls.sig)):
-        sn.rotateSonar((_dir * math.pi * 2) / 360)
+        #print "inside liao"
+        sn.rotateSonar((_dir * math.pi * 2) / 360,_dir)
         ls.sig[i] = sn.getSonar()
     return -1
+
+def characterize_location_for_real(ls, _dir):
+    sn = sonic.Sonic()
+    # TODO:    You should implement the function that captures a signature.
+    _dir *= -1
+    readings,_dir = sn.rotateSonar(math.pi*2,_dir)
+    return _dir,readings
 
 
 # FILL IN: compare two signatures
@@ -150,15 +159,18 @@ def recognize_location(signatures, _dir):
     return currentBestMatch, _dir
 
 
-def findAnomaly(ls1, ls2):
+def findAnomaly(readings, match):
     threshold = 10
     differingIndices = []
-    for i in range(len(ls1.sig)):
-        difference = abs(ls1.sig[i] - ls2.sig[i])
+    for i in range(len(readings)):
+        currentAngle = int(readings[i][0])
+        currentDistance = readings[i][1]
+        difference = abs(currentDistance - match.sig[currentAngle])
         if difference > threshold:
-            differingIndices.append(i)
-    median = int(len(differingIndices))
-    return median
+            differingIndices.append(currentAngle)
+    print "Anomlay: " + str(differingIndices)
+    median = int(len(differingIndices)/2)
+    return differingIndices[median]
 
 
 def getLocationOfObject(currentPosition, distance):
