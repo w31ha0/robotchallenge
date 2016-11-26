@@ -68,14 +68,15 @@ class SignatureContainer():
     # Read signature file identified by index. If the file doesn't exist
     # it returns an empty signature.
     def read(self, index):
+        s = []
         ls = LocationSignature()
         filename = self.filenames[index]
         if os.path.isfile(filename):
             f = open(filename, 'r')
-            for i in range(len(ls.sig)):
-                s = f.readline()
-                if s != '':
-                    ls.sig[i] = int(s)
+            for line in f:
+                linex = line[1:-2]
+                s.append(tuple(map(float, linex.split(','))))
+            ls.sig = s
             f.close()
         else:
             print "WARNING: Signature does not exist."
@@ -88,18 +89,19 @@ def characterize_location(ls, _dir):
     sn = sonic.Sonic()
     # TODO:    You should implement the function that captures a signature.
     _dir *= -1
-    #print "charactersing"
-    readings,_dir = sn.rotateSonar(math.pi*2,_dir)
+    # print "charactersing"
+    readings, _dir = sn.rotateSonar(math.pi * 2, _dir)
     ls.sig[0:len(readings)] = readings
     print ls.sig
     return _dir
 
+
 def characterize_location_for_real(ls, _dir):
     sn = sonic.Sonic()
     # TODO:    You should implement the function that captures a signature.
-    readings,_dir = sn.rotateSonar(math.pi*2,_dir)
     _dir *= -1
-    return _dir,readings
+    readings, _dir = sn.rotateSonar(math.pi * 2, _dir)
+    return _dir, readings
 
 
 # FILL IN: compare two signatures
@@ -123,7 +125,7 @@ def learn_location(signatures, _dir):
         print "\nWARNING:"
         print "No signature file is available. NOTHING NEW will be learned and stored."
         print "Please remove some loc_%%.dat files.\n"
-        return _dir,readings
+        return _dir, readings
 
     signatures.save(ls, idx)
     print "STATUS:  Location " + str(idx) + " learned and saved."
@@ -146,7 +148,7 @@ def recognize_location(signatures, _dir):
 
     # FILL IN: COMPARE ls_read with ls_obs and find the best match
     for idx in range(signatures.size):
-        prevDist = 10000000000
+        prevDist = 10000
         print "STATUS:  Comparing signature " + str(idx) + " with the observed signature."
         ls_read = signatures.read(idx)
 
@@ -158,17 +160,67 @@ def recognize_location(signatures, _dir):
     return currentBestMatch, _dir
 
 
+def getSavedDistance(currentAngle, match):
+    for i in range(len(match.sig)):
+        if match.sig[i][0] >= currentAngle:
+            return match.sig[i][1], match.sig[i + 1:len(match.sig)]
+        
 def findAnomaly(readings, match):
     threshold = 10
     differingIndices = []
-    for i in range(len(readings)):
+    if len(match.sig) > len(readings):
+        lengthX = len(readings)
+    else:
+        lengthX = len(match.sig)
+    for i in range(lengthX - 1):
         currentAngle = int(readings[i][0])
         currentDistance = readings[i][1]
-        difference = abs(currentDistance - match.sig[currentAngle])
+        oldDistance,match.sig = getSavedDistance(currentAngle,match)
+        difference = oldDistance-currentDistance
+        if difference > threshold:
+            differingIndices.append(currentAngle)
+    print "Anomalies: " + str(differingIndices)
+    filteredIndices = []
+    count = 0
+    for index, item in enumerate(differingIndices):
+        if item - differingIndices[index-1] <= 8.0:
+            filteredIndices.append((item + differingIndices[index - 1])/2)
+            count = count + 1
+        else:
+            count = 0
+            filteredIndices = []
+        if count == 2:
+            break
+    sum = 0
+    for j in range(len(filteredIndices)):
+        sum = sum + j
+    median = sum/len(filteredIndices)
+    print "filtered results: " + str(filteredIndices)
+    return filteredIndices[median]
+
+
+
+def findAnomaly2(readings, match):
+    threshold = 10
+    differingIndices = []
+    #print 'SSSSSDFDSFSDFSDFSDF'
+    #print len(match.sig)
+    #print len(readings)
+    if len(match.sig) > len(readings):
+        lengthX = len(readings)
+    else:
+        lengthX = len(match.sig)
+    for i in range(lengthX - 1):
+        #print 'this is value ', i
+        currentAngle = int(readings[i][0])
+        currentDistance = readings[i][1]
+        oldDistance, match.sig = getSavedDistance(currentAngle, match)
+        #print "Old distance is " + str(oldDistance)
+        difference = abs(int(oldDistance) - currentDistance)
         if difference > threshold:
             differingIndices.append(currentAngle)
     print "Anomlay: " + str(differingIndices)
-    median = int(len(differingIndices)/2)
+    median = int(len(differingIndices) / 2)
     return differingIndices[median]
 
 
