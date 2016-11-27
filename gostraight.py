@@ -29,8 +29,8 @@ class go(object):
             time.sleep(0.01)
         if (self.touchDetected):
             print 'bumped!'
-            gobackDistance = self.goback(20)
-            return [tmpDistance+gobackDistance,90]
+            self.goback(20)
+            return self.goback(20)
         else:
             self.straightDistance  = (interface.getMotorAngle(motors[0])[0]-self.initAngle)/(100.0/108.0)/3.14159/0.124
             return [self.straightDistance,0]
@@ -46,8 +46,7 @@ class go(object):
         while not interface.motorAngleReferencesReached(motors[0:2]):
             time.sleep(0.1)            
         tmpDistance = (interface.getMotorAngle(motors[0])[0]-self.initAngle)/(100.0/108.0)/3.14159/0.124
-       
-        #turn.turn(90)        
+        turn.turn(90)        
         self.touchDetected = False
         return tmpDistance
             

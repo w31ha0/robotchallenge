@@ -9,55 +9,53 @@ import bumper
 import turn
 import gostraight
 
-waypoint1 = (84, 30)
-waypointa = (157.5, 30)
-waypointb = (126, 147)
-waypointc = (42, 112)
+waypoint1 = (84, 30, 0)
+waypointa = (157.5, 30, 0)
+waypointab = (126, 30, 1)
+waypointb = (126, 120, 0)
+waypointc = (42, 80, 0)
 
-waypoints = [waypointa, waypointb, waypointc]
+waypoints = [waypointa, waypointab, waypointb, waypointc]
 
-canvas = pds.Canvas()
-mymap = pds.Map()
-pds.drawWall(mymap, canvas)
+# canvas = pds.Canvas()
+# mymap = pds.Map()
+# pds.drawWall(mymap, canvas)
 
 particles = [initialPosition for i in range(numberOfParticles)]
-canvas.drawParticles(particles)
+# canvas.drawParticles(particles)
 signatures = prb.SignatureContainer()
 
-#bumper = bumper.Bumper()
-#bumperThread = threading.Thread(name='bumper', target=bumper.getTouch)
-#bumperThread.start()
+# bumper = bumper.Bumper()
+# bumperThread = threading.Thread(name='bumper', target=bumper.getTouch)
+# bumperThread.start()
 
 _dir = 1
 
 for index, waypoint in enumerate(waypoints):
     particles = nwp.navigateToWayPoint(waypoint[0], waypoint[1], pu.getCurrentPosition(particles), particles)
-    # include bumped here, then subsequent action
-    current_particles = pu.getCurrentPosition(particles)
-    ls = prb.LocationSignature()
-    _dir,readings = prb.characterize_location_for_real(ls, _dir)
-    print "Scanned " + str(readings)
-    #match, _dir = prb.recognize_location(signatures, _dir)
-    match = signatures.read(index)
-    angle = prb.findAnomaly(readings, match)  # anomaly in absolute angle (degrees)
-    toturn = angle - current_particles[2]
-    turn.turn(math.degrees(toturn))
-    particles = [pu.updateRotation(particles[i], math.degrees(toturn)) for i in range(numberOfParticles)]
+    if waypoint[2] is 0:
+        # include bumped here, then subsequent action
+        current_particles = pu.getCurrentPosition(particles)
+        ls = prb.LocationSignature()
+        _dir, readings = prb.characterize_location_for_real(ls, _dir)
+        print "Scanned " + str(readings)
+        # match, _dir = prb.recognize_location(signatures, _dir)
+        match = signatures.read(index)
+        angle = prb.findAnomaly(readings, match)  # anomaly in absolute angle (degrees)
+        print 'Anomalous angle is at dsfsdfsdf: ', angle
+        print 'particlesTurnning is ', current_particles[2]
+        toturn = angle - current_particles[2]
+        turn.turn(-toturn)
+        particles = [pu.updateRotation(particles[i], toturn) for i in range(numberOfParticles)]
 
-    ob = gostraight.go()
-    dist = 0
-    ob.run(1)
-    dist += 1
-    ob.run(-dist)
+        ob = gostraight.go()
+        distance, angle = ob.run(80)
+        particles = [pu.updateRotation(particles[i], angle) for i in range(numberOfParticles)]
+        particles = [pu.update(particles[i], distance) for i in range(numberOfParticles)]
 
-    nwp.navigateToWayPoint(waypoint1[0], waypoint1[1], pu.getCurrentPosition(particles), particles)
-
-
-
-
-    # waypointofobject = getLocationOfObject(pu.getCurrentPosition(particles), angle)
-    # nwp.navigateToWayPoint(waypointofobject[0], waypointofobject[1], pu.getCurrentPosition(particles), particles)
-    # when hit a bump, break
+        # waypointofobject = getLocationOfObject(pu.getCurrentPosition(particles), angle)
+        # nwp.navigateToWayPoint(waypointofobject[0], waypointofobject[1], pu.getCurrentPosition(particles), particles)
+        # when hit a bump, break
 
 nwp.navigateToWayPoint(waypoint1[0], waypoint1[1], pu.getCurrentPosition(particles), particles)
 

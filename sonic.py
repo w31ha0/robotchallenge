@@ -1,6 +1,7 @@
 from config import interface, SensorPort, motors
 import time
 import math
+from collections import Counter
 
 
 class Sonic:
@@ -11,8 +12,11 @@ class Sonic:
         print "Instantiated sonic class"
 
     def getSonar(self):
-        usReading = interface.getSensorValue(SensorPort)[0]
-        return usReading
+        usReadingArr = []
+        for i in range(0, 3):
+            usReadingArr.append(interface.getSensorValue(SensorPort)[0])
+            b = Counter(usReadingArr)
+        return b.most_common(1)[0][0]
 
     def rotateSonar(self, angleRad, _dir):
         self.sonicArr = []
@@ -22,10 +26,10 @@ class Sonic:
         while not interface.motorAngleReferenceReached(motors[2]):
             angle = interface.getMotorAngle(motors[2])[0]
             if math.degrees(abs(angle - prevAngle)) >= 4.0:
-                #print (angle - prevAngle) / math.pi * 180
+                # print (angle - prevAngle) / math.pi * 180
                 prevAngle = angle
                 self.sonicArr.append((abs(math.degrees(angle - originalAngle)), self.getSonar()))
-            time.sleep(0.01)
+            time.sleep(0.0001)
         # print len(self.sonicArr)
         return self.sonicArr, _dir
 

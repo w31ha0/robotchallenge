@@ -1,0 +1,25 @@
+import place_rec_bits as prb
+import os
+
+index = 0
+step = 5
+
+signatures = prb.SignatureContainer()
+s = [0] * (360/step)
+filename = signatures.filenames[index]
+if os.path.isfile(filename):
+    f = open(filename, 'r')
+    for line in f:
+        linex = line[1:-2]
+        tuple = tuple(map(float, linex.split(',')))
+        print str(tuple)
+        currentAngle = tuple[0]
+        currentDistance = tuple[1]
+        for idx, freq in enumerate(s):
+            if (step*(idx+1) > currentAngle):
+                s[idx] = freq+1
+                continue
+    f.close()
+    print str(s)
+else:
+    print "WARNING: Signature does not exist."

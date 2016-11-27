@@ -5,8 +5,7 @@
 import sonic
 import os
 import math
-# from config import sonarToCenter, numberOfScans, angleToRotateScans,interface,
-from config import *
+import numpy as np
 
 
 # Location signature class: stores a signature characterizing one location
@@ -87,9 +86,7 @@ class SignatureContainer():
 # FILL IN: spin robot or sonar to capture a signature and store it in ls
 def characterize_location(ls, _dir):
     sn = sonic.Sonic()
-    # TODO:    You should implement the function that captures a signature.
     _dir *= -1
-    # print "charactersing"
     readings, _dir = sn.rotateSonar(math.pi * 2, _dir)
     ls.sig[0:len(readings)] = readings
     print ls.sig
@@ -98,7 +95,6 @@ def characterize_location(ls, _dir):
 
 def characterize_location_for_real(ls, _dir):
     sn = sonic.Sonic()
-    # TODO:    You should implement the function that captures a signature.
     _dir *= -1
     readings, _dir = sn.rotateSonar(math.pi * 2, _dir)
     return _dir, readings
@@ -115,113 +111,57 @@ def compare_signatures(ls1, ls2):
     return dist
 
 
-# This function characterizes the current location, and stores the obtained
-# signature into the next available file.
-def learn_location(signatures, _dir):
-    ls = LocationSignature()
-    _dir = characterize_location(ls, _dir)
-    idx = signatures.get_free_index()
-    if idx == -1:  # run out of signature files
-        print "\nWARNING:"
-        print "No signature file is available. NOTHING NEW will be learned and stored."
-        print "Please remove some loc_%%.dat files.\n"
-        return _dir, readings
-
-    signatures.save(ls, idx)
-    print "STATUS:  Location " + str(idx) + " learned and saved."
-    return _dir
-
-
-# This function tries to recognize the current location.
-# 1.   Characterize current location
-# 2.   For every learned locations
-# 2.1. Read signature of learned location from file
-# 2.2. Compare signature to signature coming from actual characterization
-# 3.   Retain the learned location whose minimum distance with
-#      actual characterization is the smallest.
-# 4.   Display the index of the recognized location on the screen
-def recognize_location(signatures, _dir):
-    ls_obs = LocationSignature()
-    _dir = characterize_location(ls_obs, _dir)
-    currentBestMatch = LocationSignature()
-    matchedIndex = 0
-
-    # FILL IN: COMPARE ls_read with ls_obs and find the best match
-    for idx in range(signatures.size):
-        prevDist = 10000
-        print "STATUS:  Comparing signature " + str(idx) + " with the observed signature."
-        ls_read = signatures.read(idx)
-
-        dist = compare_signatures(ls_obs, ls_read)
-    if dist < prevDist:
-        currentBestMatch = ls_read
-        matchedIndex = idx
-    print "Found matched index " + str(matchedIndex) + " for file " + str(signatures.filenames[matchedIndex])
-    return currentBestMatch, _dir
-
-
 def getSavedDistance(currentAngle, match):
-    for i in range(len(match.sig)):
-        if match.sig[i][0] >= currentAngle:
-            return match.sig[i][1], match.sig[i + 1:len(match.sig)]
-        
+    if (len(match.sig)) >= 2:
+        for i in range(len(match.sig)):
+            if match.sig[i][0] >= currentAngle:
+                return match.sig[i][1], match.sig[i + 1:len(match.sig)]
+    else:
+        return False, False
+
+
 def findAnomaly(readings, match):
     threshold = 10
     differingIndices = []
+
     if len(match.sig) > len(readings):
         lengthX = len(readings)
     else:
         lengthX = len(match.sig)
     for i in range(lengthX - 1):
+        tmp_match = match
+        oldDistance = []
         currentAngle = int(readings[i][0])
         currentDistance = readings[i][1]
-        oldDistance,match.sig = getSavedDistance(currentAngle,match)
-        difference = oldDistance-currentDistance
+        for theta in [0]:
+            # for theta in [4,0,-4]:
+            oldDistance.append(getSavedDistance(currentAngle - theta, tmp_match)[0])
+            if getSavedDistance(currentAngle - theta, match)[1] is False:
+                pass
+            else:
+                pass
+                # match.sig = getSavedDistance(currentAngle-theta, match)[1]
+        difference = min([old - currentDistance for old in oldDistance])
         if difference > threshold:
-            differingIndices.append(currentAngle)
+            differingIndices.append((currentAngle, difference))
     print "Anomalies: " + str(differingIndices)
+
     filteredIndices = []
-    count = 0
+    tmp = []
     for index, item in enumerate(differingIndices):
-        if item - differingIndices[index-1] <= 8.0:
-            filteredIndices.append((item + differingIndices[index - 1])/2)
-            count = count + 1
+        if abs(item[0] - differingIndices[index - 1][0]) <= 8.0:
+            tmp.append(((item[0] + differingIndices[index - 1][0]) / 2.0, differingIndices[index - 1][1]))
         else:
-            count = 0
-            filteredIndices = []
-        if count == 2:
-            break
-    sum = 0
-    for j in range(len(filteredIndices)):
-        sum = sum + j
-    median = sum/len(filteredIndices)
-    print "filtered results: " + str(filteredIndices)
-    return filteredIndices[median]
+            if tmp != []:
+                filteredIndices.append((np.median([pair[0] for pair in tmp]), sum([pair[1] for pair in tmp])))
+                tmp = []
+    if tmp != []:
+        filteredIndices.append((np.median([pair[0] for pair in tmp]), sum([pair[1] for pair in tmp])))
+        tmp = []
+    tmp2 = [error[1] for error in filteredIndices]
 
-
-
-def findAnomaly2(readings, match):
-    threshold = 10
-    differingIndices = []
-    #print 'SSSSSDFDSFSDFSDFSDF'
-    #print len(match.sig)
-    #print len(readings)
-    if len(match.sig) > len(readings):
-        lengthX = len(readings)
-    else:
-        lengthX = len(match.sig)
-    for i in range(lengthX - 1):
-        #print 'this is value ', i
-        currentAngle = int(readings[i][0])
-        currentDistance = readings[i][1]
-        oldDistance, match.sig = getSavedDistance(currentAngle, match)
-        #print "Old distance is " + str(oldDistance)
-        difference = abs(int(oldDistance) - currentDistance)
-        if difference > threshold:
-            differingIndices.append(currentAngle)
-    print "Anomlay: " + str(differingIndices)
-    median = int(len(differingIndices) / 2)
-    return differingIndices[median]
+    print filteredIndices[tmp2.index(max(tmp2))][0]
+    return filteredIndices[tmp2.index(max(tmp2))][0]
 
 
 def getLocationOfObject(currentPosition, distance):
@@ -251,6 +191,42 @@ def getDepthFrequencyHistogram(arrayOfDepths):
     return histogram
 
 
+# This function characterizes the current location, and stores the obtained
+# signature into the next available file.
+'''
+def learn_location(signatures, _dir):
+    ls = LocationSignature()
+    _dir = characterize_location(ls, _dir)
+    idx = signatures.get_free_index()
+    if idx == -1:  # run out of signature files
+        print "\nWARNING:"
+        print "No signature file is available. NOTHING NEW will be learned and stored."
+        print "Please remove some loc_%%.dat files.\n"
+        return _dir, readings
+
+    signatures.save(ls, idx)
+    print "STATUS:  Location " + str(idx) + " learned and saved."
+    return _dir
+
+def recognize_location(signatures, _dir):
+    ls_obs = LocationSignature()
+    _dir = characterize_location(ls_obs, _dir)
+    currentBestMatch = LocationSignature()
+    matchedIndex = 0
+
+    # FILL IN: COMPARE ls_read with ls_obs and find the best match
+    for idx in range(signatures.size):
+        prevDist = 10000
+        print "STATUS:  Comparing signature " + str(idx) + " with the observed signature."
+        ls_read = signatures.read(idx)
+
+        dist = compare_signatures(ls_obs, ls_read)
+    if dist < prevDist:
+        currentBestMatch = ls_read
+        matchedIndex = idx
+    print "Found matched index " + str(matchedIndex) + " for file " + str(signatures.filenames[matchedIndex])
+    return currentBestMatch, _dir
+
 def drawSun(canvas, values, origin):
     i = 0
     for eachangle in range(len(values)):
@@ -267,3 +243,4 @@ def drawSun(canvas, values, origin):
         canvas.drawLine(line)
         del line
         i += 1
+'''
