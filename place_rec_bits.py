@@ -193,7 +193,7 @@ def getDepthFrequencyHistogram(arrayOfDepths):
 
 # This function characterizes the current location, and stores the obtained
 # signature into the next available file.
-'''
+
 def learn_location(signatures, _dir):
     ls = LocationSignature()
     _dir = characterize_location(ls, _dir)
@@ -243,4 +243,4 @@ def drawSun(canvas, values, origin):
         canvas.drawLine(line)
         del line
         i += 1
-'''
+

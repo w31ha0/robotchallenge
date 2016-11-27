@@ -1,6 +1,6 @@
 import time
 import brickpi
-from config import *
+from config import interface, motors
 
 
 def turn(degrees):
@@ -11,4 +11,3 @@ def turn(degrees):
     while not interface.motorAngleReferencesReached(motors[0:2]):
         time.sleep(0.1)
     print 'Turning finished'
-#turn(90)

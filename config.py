@@ -39,19 +39,20 @@ numberOfParticles = 100
 initialPosition = (84.0, 30.0, 0.0, 1.0 / numberOfParticles)
 
 mean_x = 0.0
-sd_x = 0.35728
-# sd_x = 0.1
+# sd_x = 0.35728
+sd_x = 0.45728
 mean_y = 0.0
-sd_y = 0.35178
+#sd_y = 0.35178
+sd_y = 0.45178
 # sd_y = 0.1
 mean_theta = 0.0
 # sd_theta = 0.3
-sd_theta = 0.008
+sd_theta = 0.8
 
 mean_theta_g = 0.0
 sd_theta_g = 0.2
 
-sonarToCenter = 5
+sonarToCenter = 2
 
 numberOfScans = 72
 angleToRotateScans = 5.0

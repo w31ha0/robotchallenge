@@ -5,12 +5,12 @@ import sonic
 from normal import *
 import turn
 import gostraight
-from particleUpdate import updateRotation, update
+from particleUpdate import updateRotation, update, sonarToCenter
 
 
 def mcl(oldParticles):
     sn = sonic.Sonic()
-    z = sn.getSonar() + 2
+    z = sn.getSonar() + sonarToCenter
     if z == -1:
         print "Skipping MCL as sonar distance is unreliable"
         return tuple(oldParticles)
