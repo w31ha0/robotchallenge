@@ -6,11 +6,122 @@ import sonic
 import os
 import math
 import numpy as np
+from operator import itemgetter
+
+
+# FILL IN: spin robot or sonar to capture a signature and store it in ls
+def characterize_location(_sonnic, _dir):
+    _dir *= -1
+    readings, _dir = _sonnic.rotateSonar_15(math.pi * 2, _dir)
+    # ls.sig[0:len(readings)] = readings
+    # print ls.sig
+    return _dir,readings
+
+
+def characterize_location_for_real(_sonnic, _dir):
+    _dir *= -1
+    readings, _dir = _sonnic.rotateSonar_15(math.pi * 2, _dir)
+    return _dir, readings
+
+
+# FILL IN: compare two signatures
+def compare_signatures(ls1, ls2):
+    dist = 0
+    # TODO:    You should implement the function that compares two signatures
+    for i in range(len(ls1.sig)):
+        diff = abs(ls1.sig[i] - ls2.sig[i])
+        dist += diff
+
+    return dist
+
+
+def getSavedDistance(currentAngle, match):
+    if (len(match.sig)) >= 2:
+        for i in range(len(match.sig)):
+            if match.sig[i][0] >= currentAngle:
+                return match.sig[i][1], match.sig[i + 1:len(match.sig)]
+    else:
+        return False, False
+
+
+def findAnomaly(readings, match):
+    threshold = 10
+    differingIndices = []
+
+    if len(match.sig) > len(readings):
+        lengthX = len(readings)
+    else:
+        lengthX = len(match.sig)
+    for i in range(lengthX - 1):
+        tmp_match = match
+        oldDistance = []
+        currentAngle = int(readings[i][0])
+        currentDistance = readings[i][1]
+        for theta in [-4, 0, 4]:
+            # for theta in [4,0,-4]:
+            oldDistance.append(getSavedDistance(currentAngle - theta, match)[0])
+            # if getSavedDistance(currentAngle - theta, match)[1] is False:
+            #    pass
+            # else:
+            #    pass
+            # match.sig = getSavedDistance(currentAngle-theta, match)[1]
+        difference = min([old - currentDistance for old in oldDistance])
+        if difference > threshold:
+            differingIndices.append((currentAngle, currentDistance, difference))
+    print "Anomalies: " + str(differingIndices)
+
+    filteredIndices = []
+    tmp = []
+    totalAngle = 0
+    totalDifference = 0
+    for index, item in enumerate(differingIndices):
+        if abs(item[0] - differingIndices[index - 1][0]) <= 15.0:
+            tmp.append(item)
+            if (
+                    differingIndices[index - 1][0], differingIndices[index - 1][1],
+                    differingIndices[index - 1][2]) not in tmp:
+                tmp.append(
+                    (differingIndices[index - 1][0], differingIndices[index - 1][1], differingIndices[index - 1][2]))
+        else:
+            if tmp != []:
+                for j in tmp:
+                    totalAngle += j[0]
+                    totalDifference += j[1]
+                spreadDistance = np.std([i[1] for i in tmp])
+                gathered = (totalAngle / len(tmp), spreadDistance, totalDifference)
+                filteredIndices.append((gathered, tuple(tmp)))
+                tmp = []
+    if tmp != []:
+        for j in tmp:
+            for j in tmp:
+                totalAngle += j[0]
+                totalDifference += j[1]
+            spreadDistance = np.std([i[1] for i in tmp])
+            gathered = (totalAngle / len(tmp), spreadDistance, totalDifference)
+            filteredIndices.append((gathered, tuple(tmp)))
+            tmp = []
+    #print "holla" + str(filteredIndices)
+    tmpdiff = [error[0][2] for error in filteredIndices]
+    if tmpdiff != []:
+        bestAngle1 = filteredIndices[tmpdiff.index(max(tmpdiff))][0][0]
+    else:
+        #bestAngle1 = differingIndices[differingIndices.index(max([o[2] for o in differingIndices]))][0]
+        bestAngle1 = max(differingIndices,key=itemgetter(2))[0]
+    tmpspread = [spread[0][1] for spread in filteredIndices]
+    if tmpspread != []:
+        bestAngle2 = filteredIndices[tmpspread.index(min(tmpspread))][0][0]
+    else:
+        #bestAngle2 = differingIndices[filteredIndices.index(min([p[1] for p in differingIndices]))][0]
+        bestAngle2 = min(differingIndices,key=itemgetter(1))[0]
+
+    print "best angle by tmpspread" + str(bestAngle1)
+    print "best angle by tmpdiff" + str(bestAngle2)
+    return bestAngle1
 
 
 # Location signature class: stores a signature characterizing one location
 class LocationSignature:
-    def __init__(self, no_bins=360):
+    def __init__(self, no_bins=50):
         self.sig = [0] * no_bins
 
     def print_signature(self):
@@ -20,14 +131,15 @@ class LocationSignature:
 
 # --------------------- File management class ---------------
 class SignatureContainer():
-    def __init__(self, size=5):
+    def __init__(self, size=3):
         self.size = size  # max number of signatures that can be stored
         self.filenames = []
-
+        self.histofilenames = []
         # Fills the filenames variable with names like loc_%%.dat
         # where %% are 2 digits (00, 01, 02...) indicating the location number.
         for i in range(self.size):
             self.filenames.append('loc_{0:02d}.dat'.format(i))
+            self.histofilenames.append('freqHistogram_{0:02d}.dat'.format(i))
 
     # Get the index of a filename for the new signature. If all filenames are
     # used, it returns -1
@@ -82,86 +194,18 @@ class SignatureContainer():
 
         return ls
 
-
-# FILL IN: spin robot or sonar to capture a signature and store it in ls
-def characterize_location(ls, _dir):
-    sn = sonic.Sonic()
-    _dir *= -1
-    readings, _dir = sn.rotateSonar(math.pi * 2, _dir)
-    ls.sig[0:len(readings)] = readings
-    print ls.sig
-    return _dir
-
-
-def characterize_location_for_real(ls, _dir):
-    sn = sonic.Sonic()
-    _dir *= -1
-    readings, _dir = sn.rotateSonar(math.pi * 2, _dir)
-    return _dir, readings
-
-
-# FILL IN: compare two signatures
-def compare_signatures(ls1, ls2):
-    dist = 0
-    # TODO:    You should implement the function that compares two signatures
-    for i in range(len(ls1.sig)):
-        diff = abs(ls1.sig[i] - ls2.sig[i])
-        dist += diff
-
-    return dist
-
-
-def getSavedDistance(currentAngle, match):
-    if (len(match.sig)) >= 2:
-        for i in range(len(match.sig)):
-            if match.sig[i][0] >= currentAngle:
-                return match.sig[i][1], match.sig[i + 1:len(match.sig)]
-    else:
-        return False, False
-
-
-def findAnomaly(readings, match):
-    threshold = 10
-    differingIndices = []
-
-    if len(match.sig) > len(readings):
-        lengthX = len(readings)
-    else:
-        lengthX = len(match.sig)
-    for i in range(lengthX - 1):
-        tmp_match = match
-        oldDistance = []
-        currentAngle = int(readings[i][0])
-        currentDistance = readings[i][1]
-        for theta in [0]:
-            # for theta in [4,0,-4]:
-            oldDistance.append(getSavedDistance(currentAngle - theta, tmp_match)[0])
-            if getSavedDistance(currentAngle - theta, match)[1] is False:
-                pass
-            else:
-                pass
-                # match.sig = getSavedDistance(currentAngle-theta, match)[1]
-        difference = min([old - currentDistance for old in oldDistance])
-        if difference > threshold:
-            differingIndices.append((currentAngle, difference))
-    print "Anomalies: " + str(differingIndices)
-
-    filteredIndices = []
-    tmp = []
-    for index, item in enumerate(differingIndices):
-        if abs(item[0] - differingIndices[index - 1][0]) <= 8.0:
-            tmp.append(((item[0] + differingIndices[index - 1][0]) / 2.0, differingIndices[index - 1][1]))
+    def read_histogram(self, index):
+        s = []
+        filename = self.histofilenames[index]
+        print filename
+        if os.path.isfile(filename):
+            f = open(filename, 'r')
+            for line in f:
+                s.append(int(line))
+            f.close()
         else:
-            if tmp != []:
-                filteredIndices.append((np.median([pair[0] for pair in tmp]), sum([pair[1] for pair in tmp])))
-                tmp = []
-    if tmp != []:
-        filteredIndices.append((np.median([pair[0] for pair in tmp]), sum([pair[1] for pair in tmp])))
-        tmp = []
-    tmp2 = [error[1] for error in filteredIndices]
-
-    print filteredIndices[tmp2.index(max(tmp2))][0]
-    return filteredIndices[tmp2.index(max(tmp2))][0]
+            print "Warning: Histogram does not exist."
+        return s
 
 
 def getLocationOfObject(currentPosition, distance):
@@ -191,12 +235,10 @@ def getDepthFrequencyHistogram(arrayOfDepths):
     return histogram
 
 
-# This function characterizes the current location, and stores the obtained
-# signature into the next available file.
-
 def learn_location(signatures, _dir):
     ls = LocationSignature()
-    _dir = characterize_location(ls, _dir)
+    _dir,readings = characterize_location(sonic.Sonic(), _dir)
+    ls.sig[0:len(readings)]  = readings
     idx = signatures.get_free_index()
     if idx == -1:  # run out of signature files
         print "\nWARNING:"
@@ -207,6 +249,11 @@ def learn_location(signatures, _dir):
     signatures.save(ls, idx)
     print "STATUS:  Location " + str(idx) + " learned and saved."
     return _dir
+
+
+# This function characterizes the current location, and stores the obtained
+# signature into the next available file.
+'''
 
 def recognize_location(signatures, _dir):
     ls_obs = LocationSignature()
@@ -243,4 +290,4 @@ def drawSun(canvas, values, origin):
         canvas.drawLine(line)
         del line
         i += 1
-
+'''

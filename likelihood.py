@@ -49,9 +49,6 @@ def getDistanceToWall(Ax, Ay, Bx, By, x, y, theta):
 
 
 def getLikelihoodProb(z, m):
-    sd = 2.0
+    sd = 3.0
     return math.exp((-(z - m) * (z - m)) / 2 * sd * sd)
-    # return math.exp( (-(z-m)*(z-m))/2*sd*sd)+0.000001
-
-    # print "likehood is " + str(calculate_likelihood(84,30,3,30))
-    # print "likehoodprob is " + str(getLikelihoodProb(10,30))
+   

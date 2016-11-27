@@ -26,11 +26,9 @@ class go(object):
             time.sleep(0.01)
         if self.touchDetected:
             print 'bumped!'
-            self.goback(20)
-            return self.goback(20)
+            return [self.goback(20),90]
         else:
-            self.straightDistance = (interface.getMotorAngle(motors[0])[0] - self.initAngle) / (
-                100.0 / 108.0) / 3.14159 / 0.124
+            self.straightDistance = (interface.getMotorAngle(motors[0])[0] - self.initAngle) / (100.0 / 108.0) / 3.14159 / 0.124
             return [self.straightDistance, 0]
 
             # Do something

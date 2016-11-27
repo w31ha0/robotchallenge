@@ -15,7 +15,7 @@ class Sonic:
         usReadingArr = []
         for i in range(0, 3):
             usReadingArr.append(interface.getSensorValue(SensorPort)[0])
-            b = Counter(usReadingArr)
+        b = Counter(usReadingArr)
         return b.most_common(1)[0][0]
 
     def rotateSonar(self, angleRad, _dir):
@@ -25,13 +25,46 @@ class Sonic:
         interface.increaseMotorAngleReference(motors[2], _dir * angleRad, 3.0)
         while not interface.motorAngleReferenceReached(motors[2]):
             angle = interface.getMotorAngle(motors[2])[0]
-            if math.degrees(abs(angle - prevAngle)) >= 4.0:
+            if math.degrees(abs(angle - prevAngle)) >= 15.0:
                 # print (angle - prevAngle) / math.pi * 180
                 prevAngle = angle
                 self.sonicArr.append((abs(math.degrees(angle - originalAngle)), self.getSonar()))
             time.sleep(0.0001)
         # print len(self.sonicArr)
         return self.sonicArr, _dir
+    
+    def rotateSonar_15(self, angleRad, _dir):
+        self.sonicArr = []
+        originalAngle = interface.getMotorAngle(motors[2])[0]
+        prevAngle = interface.getMotorAngle(motors[2])[0]
+        interface.increaseMotorAngleReference(motors[2], _dir * angleRad, 3.0)
+        while not interface.motorAngleReferenceReached(motors[2]):
+            angle = interface.getMotorAngle(motors[2])[0]
+            if math.degrees(abs(angle - prevAngle)) >= 15.0:
+                print (angle - prevAngle) / math.pi * 180
+                prevAngle = angle
+                self.sonicArr.append((abs(math.degrees(angle - originalAngle)), self.getSonar()))
+                
+            time.sleep(0.0001)
+        # print len(self.sonicArr)
+        return self.sonicArr, _dir
+    
+    def rotateSonar_152(self, angleRad, _dir):
+        self.sonicArr = []
+        originalAngle = interface.getMotorAngle(motors[2])[0]
+        prevAngle = interface.getMotorAngle(motors[2])[0]
+        interface.increaseMotorAngleReference(motors[2], _dir * angleRad, 1.0)
+        while not interface.motorAngleReferenceReached(motors[2]):
+            angle = interface.getMotorAngle(motors[2])[0]
+            if math.degrees(abs(angle - prevAngle)) >= 15.0:
+                print (angle - prevAngle) / math.pi * 180
+                self.sonicArr.append((abs(math.degrees(angle - prevAngle)), self.getSonar()))
+                prevAngle = angle
+            time.sleep(0.0001)
+        # print len(self.sonicArr)
+        return self.sonicArr, _dir
+    
+    
 
 
 if __name__ == "__main__":

@@ -1,21 +1,19 @@
-import math
-import particleDataStructure as pds
 import particleUpdate as pu
 import place_rec_bits as prb
-from config import *
+from config import numberOfParticles, initialPosition
 import navigateToWayPoint as nwp
-import threading
-import bumper
 import turn
 import gostraight
+import sonic
 
 waypoint1 = (84, 30, 0)
 waypointa = (157.5, 30, 0)
 waypointab = (126, 30, 1)
 waypointb = (126, 120, 0)
+waypointbc = (126, 112, 1)
 waypointc = (42, 80, 0)
 
-waypoints = [waypointa, waypointab, waypointb, waypointc]
+waypoints = [waypointa, waypointab, waypointb, waypointbc, waypointc]
 
 # canvas = pds.Canvas()
 # mymap = pds.Map()
@@ -29,21 +27,50 @@ signatures = prb.SignatureContainer()
 # bumperThread = threading.Thread(name='bumper', target=bumper.getTouch)
 # bumperThread.start()
 
+_sonnic = sonic.Sonic()
+_gostraight = gostraight.go()
+
 _dir = 1
 
+
+def ConvertToHisto(readings):
+    step = 10
+
+    s = [0] * (200 / step)
+    for currenttuple in readings:
+        currentAngle = currenttuple[0]
+        currentDistance = currenttuple[1]
+        for idx, freq in enumerate(s):
+            # print "Comparing current Distance " + str(currentDistance) + " against " + str(step*(idx+1))
+            if (step * (idx + 1) > currentDistance):
+                # print str(currentDistance) + " has been allocated to " + str(idx+1)
+                s[idx] = freq + 1
+                break
+
+    return s
+
+
 for index, waypoint in enumerate(waypoints):
-    particles = nwp.navigateToWayPoint(waypoint[0], waypoint[1], pu.getCurrentPosition(particles), particles)
+    print "main 6666 curr position" + str(pu.getCurrentPosition(particles))
+    particles,bumped = nwp.navigateToWayPoint(waypoint[0], waypoint[1], pu.getCurrentPosition(particles), particles)
+    if bumped:
+        continue
     if waypoint[2] is 0:
+        #if index is 0:
+            #nwp.wallCheck(_gostraight, _sonnic, _dir)
         # include bumped here, then subsequent action
         current_particles = pu.getCurrentPosition(particles)
-        ls = prb.LocationSignature()
-        _dir, readings = prb.characterize_location_for_real(ls, _dir)
-        print "Scanned " + str(readings)
+        # ls = prb.LocationSignature()
+        _dir, readings = prb.characterize_location_for_real(_sonnic, _dir)
+        #print "Scanned " + str(readings)
+        scannedHisto = ConvertToHisto(readings)
+        #print "Got histo " + str(scannedHisto)
         # match, _dir = prb.recognize_location(signatures, _dir)
         match = signatures.read(index)
-        angle = prb.findAnomaly(readings, match)  # anomaly in absolute angle (degrees)
-        print 'Anomalous angle is at dsfsdfsdf: ', angle
-        print 'particlesTurnning is ', current_particles[2]
+        histo_match = signatures.read_histogram(index)
+        angle = prb.findAnomaly(readings, match)#, histo_match, scannedHisto)  # anomaly in absolute angle (degrees)
+        #print 'Anomalous angle is at dsfsdfsdf: ', angle
+        #print 'particlesTurnning is ', current_particles[2]
         toturn = angle - current_particles[2]
         turn.turn(-toturn)
         particles = [pu.updateRotation(particles[i], toturn) for i in range(numberOfParticles)]
