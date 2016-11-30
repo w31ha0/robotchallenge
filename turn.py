@@ -9,5 +9,5 @@ def turn(degrees):
     angleToTurn = (degrees / 90) * angleFor90Deg
     interface.increaseMotorAngleReferences(motors[0:2], [angleToTurn, -angleToTurn], [6, -6])
     while not interface.motorAngleReferencesReached(motors[0:2]):
-        time.sleep(0.1)
+        time.sleep(0.01)
     print 'Turning finished'

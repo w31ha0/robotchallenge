@@ -12,8 +12,15 @@ waypointab = (126, 30, 1)
 waypointb = (126, 120, 0)
 waypointbc = (126, 112, 1)
 waypointc = (42, 80, 0)
+waypointcd = (142, 80, 0)
+waypointd = (42, 180, 0)
+waypointde = (142, 80, 0)
+waypointe = (42, 180, 0)
+waypointef = (142, 80, 0)
+waypointf = (42, 80, 0)
 
-waypoints = [waypointa, waypointab, waypointb, waypointbc, waypointc]
+#waypoints = [waypointa, waypointab, waypointb, waypointbc, waypointc]
+waypoints = [waypointa, waypointab, waypointb, waypointbc, waypointc, waypointcd, waypointd, waypointde, waypointe, waypointef, waypointf]
 
 # canvas = pds.Canvas()
 # mymap = pds.Map()

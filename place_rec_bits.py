@@ -57,7 +57,7 @@ def findAnomaly(readings, match):
         oldDistance = []
         currentAngle = int(readings[i][0])
         currentDistance = readings[i][1]
-        for theta in [-4, 0, 4]:
+        for theta in [0]:
             # for theta in [4,0,-4]:
             oldDistance.append(getSavedDistance(currentAngle - theta, match)[0])
             # if getSavedDistance(currentAngle - theta, match)[1] is False:
@@ -99,7 +99,7 @@ def findAnomaly(readings, match):
             spreadDistance = np.std([i[1] for i in tmp])
             gathered = (totalAngle / len(tmp), spreadDistance, totalDifference)
             filteredIndices.append((gathered, tuple(tmp)))
-            tmp = []
+            #tmp = []
     #print "holla" + str(filteredIndices)
     tmpdiff = [error[0][2] for error in filteredIndices]
     if tmpdiff != []:

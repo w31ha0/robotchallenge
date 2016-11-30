@@ -28,7 +28,7 @@ _sonnic = sonic.Sonic()
 _dir = 1
 
 for index, waypoint in enumerate(waypoints):
-    particles = nwp.navigateToWayPoint(waypoint[0], waypoint[1], pu.getCurrentPosition(particles), particles,_sonnic)
+    particles = nwp.navigateToWayPoint(waypoint[0], waypoint[1], pu.getCurrentPosition(particles), particles,_sonnic,index)
 
 nwp.navigateToWayPoint(waypoint1[0], waypoint1[1], pu.getCurrentPosition(particles), particles,_sonnic)
 

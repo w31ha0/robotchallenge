@@ -32,7 +32,18 @@ motorParams.pidParameters.k_d = 15.0
 
 interface.setMotorAngleControllerParameters(motors[0], motorParams)
 interface.setMotorAngleControllerParameters(motors[1], motorParams)
-interface.setMotorAngleControllerParameters(motors[2], motorParams)
+
+motorParams_sonic = interface.MotorAngleControllerParameters()
+motorParams_sonic.maxRotationAcceleration = 6.0
+motorParams_sonic.maxRotationSpeed = 12.0
+motorParams_sonic.feedForwardGain = 255 / 20.0
+motorParams_sonic.minPWM = 27.0
+motorParams_sonic.pidParameters.minOutput = -255
+motorParams_sonic.pidParameters.maxOutput = 255
+motorParams_sonic.pidParameters.k_p = 400.0
+motorParams_sonic.pidParameters.k_i = 300.0
+motorParams_sonic.pidParameters.k_d = 15.0
+interface.setMotorAngleControllerParameters(motors[2], motorParams_sonic)
 
 numberOfParticles = 100
 
@@ -40,7 +51,7 @@ initialPosition = (84.0, 30.0, 0.0, 1.0 / numberOfParticles)
 
 mean_x = 0.0
 # sd_x = 0.35728
-sd_x = 0.3
+sd_x = 1.0
 mean_y = 0.0
 #sd_y = 0.35178
 sd_y = 0.45178
@@ -50,9 +61,9 @@ mean_theta = 0.0
 sd_theta = 2
 
 mean_theta_g = 0.0
-sd_theta_g = 3
+sd_theta_g = 2.5
 
-sonarToCenter = 2
+sonarToCenter = 3.0
 
 numberOfScans = 72
 angleToRotateScans = 5.0
